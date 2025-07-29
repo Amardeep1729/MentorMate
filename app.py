@@ -32,40 +32,40 @@ if mode == "📝 Text":
     user_input = st.text_input("Type your message:", key="text_input")
 
 elif mode == "🎤 Voice":
-    st.markdown("Click the button below and allow mic access to speak:")
+    st.markdown("Click below to speak:")
 
-    # Generate a unique ID so multiple voice buttons won't conflict
-    speech_id = str(uuid.uuid4()).replace("-", "")
+    # Hidden field to receive recognized speech
+    recognized_text = st.text_input("Recognized Speech:", key="voice_input")
 
-    # Placeholder to display captured voice
-    speech_placeholder = st.empty()
-
-    components.html(f"""
+    components.html("""
         <script>
-        const speechButton = document.createElement("button");
-        speechButton.innerText = "🎙️ Speak Now";
-        speechButton.style.fontSize = "18px";
-        speechButton.style.padding = "10px 20px";
-        speechButton.style.marginTop = "10px";
-        speechButton.onclick = () => {{
-            var recognition = new(window.SpeechRecognition || window.webkitSpeechRecognition)();
+        const doc = window.parent.document;
+        const inputBox = doc.querySelector('input[data-testid="stTextInput"]');
+
+        const btn = document.createElement('button');
+        btn.innerText = '🎙️ Speak Now';
+        btn.style.fontSize = '18px';
+        btn.style.marginTop = '10px';
+        btn.style.padding = '10px 20px';
+
+        btn.onclick = () => {
+            const recognition = new(window.SpeechRecognition || window.webkitSpeechRecognition)();
             recognition.lang = 'en-US';
             recognition.start();
-            
-            recognition.onresult = function(event) {{
-                const speech = event.results[0][0].transcript;
-                const streamlitInput = window.parent.document.querySelector('iframe[srcdoc]').contentWindow;
-                streamlitInput.postMessage({{ type: "streamlit:setComponentValue", value: speech }}, "*");
-            }};
-        }};
-        document.body.appendChild(speechButton);
-        </script>
-    """, height=100, key=f"voice_{speech_id}")
 
-    # Receive the result back from JS
-    user_input = st.experimental_get_query_params().get("value", [""])[0]
-    if user_input:
-        st.success(f"Recognized: {user_input}")
+            recognition.onresult = function(event) {
+                const speech = event.results[0][0].transcript;
+                inputBox.value = speech;
+                const inputEvent = new Event('input', { bubbles: true });
+                inputBox.dispatchEvent(inputEvent);
+            };
+        };
+
+        document.body.appendChild(btn);
+        </script>
+    """, height=100)
+
+    user_input = st.session_state.get("voice_input", "")
 # Process input
 if user_input:
     with st.spinner("MentorMate is thinking..."):
