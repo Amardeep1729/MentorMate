@@ -4,93 +4,81 @@ from VoiceOutput import speak_with_browser, stop_speaking
 from dotenv import load_dotenv
 import streamlit.components.v1 as components
 
-# Load environment variables
+# Load .env variables
 load_dotenv()
 
-# Streamlit page config
+# Streamlit config
 st.set_page_config(page_title="MentorMate", layout="wide")
 
-# Session state for chat history
+# Initialize session state
 if "chat" not in st.session_state:
     st.session_state.chat = []
 
 if "voice_input" not in st.session_state:
     st.session_state.voice_input = ""
 
-# Title and description
+# Title
 st.markdown("""
     <h1 style='text-align: center; color: #ff4b4b;'>🤖 MentorMate</h1>
     <p style='text-align: center;'>Your AI mentor for programming, education & productivity</p>
 """, unsafe_allow_html=True)
 
-# Input mode selection
+# Input mode
 mode = st.radio("Choose your input method:", ["📝 Text", "🎤 Voice"], horizontal=True)
 
-# Input field or voice input
+# Input handler
 user_input = ""
 
 if mode == "📝 Text":
     user_input = st.text_input("Type your message:", key="text_input")
 
 elif mode == "🎤 Voice":
-    st.markdown("Click below to speak:")
+    st.markdown("Click the button below and start speaking:")
+    
+    # Text input to sync recognized text
+    user_input = st.text_input("Recognized Speech:", key="voice_input")
 
-    # Display-only speech box
-    st.markdown("#### Recognized Speech:")
-    st.markdown(
-        f"<div id='speechBox' style='background-color:#222;padding:10px;border-radius:5px;color:white;min-height:40px;'>{st.session_state.voice_input}</div>",
-        unsafe_allow_html=True
-    )
-
-    # Hidden input to sync with session state
-    st.text_input("Hidden Voice Input", key="voice_input", label_visibility="collapsed", disabled=True)
-
-    # JavaScript for speech recognition
-    components.html(f"""
+    # JS for voice recognition
+    components.html("""
         <script>
-        const doc = window.parent.document;
-        const speechBox = doc.querySelector('#speechBox');
-        const hiddenInput = doc.querySelector('input[data-testid="stTextInput"]');
+        const inputBox = window.document.querySelector('input[data-testid="stTextInput"]');
 
-        const btn = document.createElement('button');
-        btn.innerText = '🎙️ Speak Now';
-        btn.style.fontSize = '16px';
-        btn.style.marginTop = '10px';
-        btn.style.padding = '10px 20px';
-        btn.style.backgroundColor = '#ff4b4b';
-        btn.style.color = 'white';
-        btn.style.border = 'none';
-        btn.style.borderRadius = '6px';
-        btn.style.cursor = 'pointer';
+        const button = document.createElement('button');
+        button.innerText = "🎙️ Speak Now";
+        button.style.padding = "10px 20px";
+        button.style.fontSize = "16px";
+        button.style.backgroundColor = "#ff4b4b";
+        button.style.color = "white";
+        button.style.border = "none";
+        button.style.borderRadius = "8px";
+        button.style.marginTop = "10px";
+        button.style.cursor = "pointer";
 
-        btn.onclick = () => {{
+        button.onclick = () => {
             const recognition = new(window.SpeechRecognition || window.webkitSpeechRecognition)();
             recognition.lang = 'en-US';
             recognition.start();
 
-            recognition.onresult = function(event) {{
+            recognition.onresult = function(event) {
                 const speech = event.results[0][0].transcript;
-                speechBox.innerText = speech;
-                hiddenInput.value = speech;
-                const inputEvent = new Event("input", {{ bubbles: true }});
-                hiddenInput.dispatchEvent(inputEvent);
-            }};
-        }};
+                inputBox.value = speech;
+                const inputEvent = new Event('input', { bubbles: true });
+                inputBox.dispatchEvent(inputEvent);
+            };
+        };
 
-        document.body.appendChild(btn);
+        document.body.appendChild(button);
         </script>
-    """, height=120)
+    """, height=130)
 
-    user_input = st.session_state.voice_input
-
-# Process input
+# Run AI
 if user_input:
     with st.spinner("MentorMate is thinking..."):
         response = get_ai_response(user_input)
         st.session_state.chat.append((user_input, response))
-        st.session_state.voice_input = ""  # Clear after processing
+        st.session_state.voice_input = ""  # Clear it after processing
 
-# Display chat history
+# Display chat
 st.markdown("---")
 st.subheader("🧠 Chat History")
 
