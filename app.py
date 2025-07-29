@@ -1,6 +1,6 @@
 import streamlit as st
 from AIengine import get_ai_response
-from VoiceOutput import speak_with_browser
+from VoiceOutput import speak_with_browser, stop_speaking
 from dotenv import load_dotenv
 import os
 
@@ -30,34 +30,36 @@ if mode == "📝 Text":
     user_input = st.text_input("Type your message:", key="text_input")
 
 elif mode == "🎤 Voice":
-    st.text_input("Recognized Speech:", key="voice_input")
+    st.text_input("Recognized Speech:", key="voice_capture")
 
     st.components.v1.html("""
         <script>
-        const streamlitInput = window.parent.document.querySelector('input[data-testid="stTextInput"]');
+            const labels = Array.from(window.parent.document.querySelectorAll('label'));
+            const voiceLabel = labels.find(el => el.innerText.includes("Recognized Speech:"));
+            const streamlitInput = voiceLabel?.parentElement?.querySelector('input');
 
-        var button = document.createElement("button");
-        button.innerText = "🎙️ Speak Now";
-        button.style.fontSize = "18px";
-        button.style.padding = "10px 20px";
-        button.style.marginTop = "10px";
-        button.onclick = () => {
-            var recognition = new(window.SpeechRecognition || window.webkitSpeechRecognition)();
-            recognition.lang = 'en-US';
-            recognition.start();
+            var button = document.createElement("button");
+            button.innerText = "🎙️ Speak Now";
+            button.style.fontSize = "18px";
+            button.style.padding = "10px 20px";
+            button.style.marginTop = "10px";
+            button.onclick = () => {
+                var recognition = new(window.SpeechRecognition || window.webkitSpeechRecognition)();
+                recognition.lang = 'en-US';
+                recognition.start();
 
-            recognition.onresult = function(event) {
-                const speech = event.results[0][0].transcript;
-                streamlitInput.value = speech;
-                const inputEvent = new Event("input", { bubbles: true });
-                streamlitInput.dispatchEvent(inputEvent);
+                recognition.onresult = function(event) {
+                    const speech = event.results[0][0].transcript;
+                    streamlitInput.value = speech;
+                    const inputEvent = new Event("input", { bubbles: true });
+                    streamlitInput.dispatchEvent(inputEvent);
+                };
             };
-        };
-        document.body.appendChild(button);
+            document.body.appendChild(button);
         </script>
     """, height=100)
 
-    user_input = st.session_state.get("voice_input", "")
+    user_input = st.session_state.get("voice_capture", "")
 
 # Process input
 if user_input:
@@ -69,9 +71,18 @@ if user_input:
 st.markdown("---")
 st.subheader("🧠 Chat History")
 
+if st.button("🧹 Clear Chat"):
+    st.session_state.chat = []
+    st.success("Chat history cleared.")
+
 for i, (user, bot) in enumerate(st.session_state.chat[::-1]):
     st.markdown(f"**🧑 You:** {user}")
     st.markdown(f"**🤖 MentorMate:** {bot}")
-    if st.button(f"🔊 Speak #{i+1}", key=f"speak_{i}"):
-        speak_with_browser(bot)
+    col1, col2 = st.columns([1, 1])
+    with col1:
+        if st.button(f"🔊 Speak #{i+1}", key=f"speak_{i}"):
+            speak_with_browser(bot)
+    with col2:
+        if st.button(f"🛑 Stop #{i+1}", key=f"stop_{i}"):
+            stop_speaking()
     st.markdown("---")

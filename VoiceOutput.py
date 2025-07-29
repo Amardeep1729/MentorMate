@@ -26,3 +26,10 @@ def speak_with_browser(text):
             window.speechSynthesis.speak(msg);
         </script>
     """, height=0)
+
+def stop_speaking():
+    st.components.v1.html("""
+        <script>
+            window.speechSynthesis.cancel();
+        </script>
+    """, height=0)
