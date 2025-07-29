@@ -1,17 +1,18 @@
-import pyttsx3
+import os
 
-engine = pyttsx3.init()
-is_speaking = False 
-
-def speak_text(text: str):
+try:
+    import pyttsx3
     engine = pyttsx3.init()
-    engine.setProperty('rate',170)
-    engine.setProperty('volume',1.0)
-    engine.say(text)
-    engine.runAndWait()
+    voice_enabled = True
+except Exception as e:
+    print(f"[Voice Error] Voice output will be disabled: {e}")
+    voice_enabled = False
+
+def speak_text(text):
+    if voice_enabled:
+        engine.say(text)
+        engine.runAndWait()
 
 def stop_speaking():
-    global is_speaking
-    if is_speaking:
+    if voice_enabled:
         engine.stop()
-        is_speaking = False
