@@ -3,6 +3,8 @@ from AIengine import get_ai_response
 from VoiceOutput import speak_with_browser, stop_speaking
 from dotenv import load_dotenv
 import os
+import streamlit.components.v1 as components
+import uuid
 
 # Load environment variables
 load_dotenv()
@@ -30,37 +32,40 @@ if mode == "📝 Text":
     user_input = st.text_input("Type your message:", key="text_input")
 
 elif mode == "🎤 Voice":
-    st.text_input("Recognized Speech:", key="voice_capture")
+    st.markdown("Click the button below and allow mic access to speak:")
 
-    st.components.v1.html("""
+    # Generate a unique ID so multiple voice buttons won't conflict
+    speech_id = str(uuid.uuid4()).replace("-", "")
+
+    # Placeholder to display captured voice
+    speech_placeholder = st.empty()
+
+    components.html(f"""
         <script>
-            const labels = Array.from(window.parent.document.querySelectorAll('label'));
-            const voiceLabel = labels.find(el => el.innerText.includes("Recognized Speech:"));
-            const streamlitInput = voiceLabel?.parentElement?.querySelector('input');
-
-            var button = document.createElement("button");
-            button.innerText = "🎙️ Speak Now";
-            button.style.fontSize = "18px";
-            button.style.padding = "10px 20px";
-            button.style.marginTop = "10px";
-            button.onclick = () => {
-                var recognition = new(window.SpeechRecognition || window.webkitSpeechRecognition)();
-                recognition.lang = 'en-US';
-                recognition.start();
-
-                recognition.onresult = function(event) {
-                    const speech = event.results[0][0].transcript;
-                    streamlitInput.value = speech;
-                    const inputEvent = new Event("input", { bubbles: true });
-                    streamlitInput.dispatchEvent(inputEvent);
-                };
-            };
-            document.body.appendChild(button);
+        const speechButton = document.createElement("button");
+        speechButton.innerText = "🎙️ Speak Now";
+        speechButton.style.fontSize = "18px";
+        speechButton.style.padding = "10px 20px";
+        speechButton.style.marginTop = "10px";
+        speechButton.onclick = () => {{
+            var recognition = new(window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.lang = 'en-US';
+            recognition.start();
+            
+            recognition.onresult = function(event) {{
+                const speech = event.results[0][0].transcript;
+                const streamlitInput = window.parent.document.querySelector('iframe[srcdoc]').contentWindow;
+                streamlitInput.postMessage({{ type: "streamlit:setComponentValue", value: speech }}, "*");
+            }};
+        }};
+        document.body.appendChild(speechButton);
         </script>
-    """, height=100)
+    """, height=100, key=f"voice_{speech_id}")
 
-    user_input = st.session_state.get("voice_capture", "")
-
+    # Receive the result back from JS
+    user_input = st.experimental_get_query_params().get("value", [""])[0]
+    if user_input:
+        st.success(f"Recognized: {user_input}")
 # Process input
 if user_input:
     with st.spinner("MentorMate is thinking..."):
