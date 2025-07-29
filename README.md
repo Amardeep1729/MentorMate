@@ -17,6 +17,7 @@ MentorMate is a voice-enabled, AI-powered personal mentor built using **Streamli
 - 📜 Logging enabled
 - 🖥️ Web interface built using **Streamlit**
 - 🎨 Sleek, fast UI with chat history
+- 🛑 **Clear / Stop Buttons:** Stop speaking or clear chat  
 
 ---
 
@@ -59,6 +60,8 @@ streamlit run app.py
 - Choose Voice or Text input  
 - Type or Speak your question  
 - Responses are shown on-screen and spoken via browser 
+- Use 🔊 buttons to replay responses
+- Use 🛑 to stop speaking or 🧹 to clear chat
 
 ---
 
@@ -88,7 +91,7 @@ You can deploy it on:
 - 💡 Streamlit  
 - 🧠 OpenAI API  
 - ⚡ Google Gemini AI  
-- 🎤  SpeechRecognition (for voice input, local use)
+- 🗣️ Browser's SpeechRecognition and SpeechSynthesis APIs (JS-based)
 
 ---
 
