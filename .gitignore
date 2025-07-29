@@ -1,0 +1,6 @@
+*.pyc       # compiled Python files (cache)
+*.pyo       # optimized Python files
+*.pyd       # compiled Python DLLs (Windows)
+__pycache__/  # Python auto-generated cache folder
+.venv/        
+.env          
