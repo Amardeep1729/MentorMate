@@ -2,12 +2,12 @@ import streamlit as st
 from AIengine import get_ai_response
 from VoiceOutput import speak_with_browser, stop_speaking
 from dotenv import load_dotenv
-import streamlit.components.v1 as components
+from streamlit_js_eval import streamlit_js_eval
 
-# Load .env variables
+# Load environment variables
 load_dotenv()
 
-# Streamlit config
+# Page configuration
 st.set_page_config(page_title="MentorMate", layout="wide")
 
 # Initialize session state
@@ -17,16 +17,16 @@ if "chat" not in st.session_state:
 if "voice_input" not in st.session_state:
     st.session_state.voice_input = ""
 
-# Title
+# Header
 st.markdown("""
     <h1 style='text-align: center; color: #ff4b4b;'>🤖 MentorMate</h1>
     <p style='text-align: center;'>Your AI mentor for programming, education & productivity</p>
 """, unsafe_allow_html=True)
 
-# Input mode
+# Input mode toggle
 mode = st.radio("Choose your input method:", ["📝 Text", "🎤 Voice"], horizontal=True)
 
-# Input handler
+# Input handling
 user_input = ""
 
 if mode == "📝 Text":
@@ -34,51 +34,44 @@ if mode == "📝 Text":
 
 elif mode == "🎤 Voice":
     st.markdown("Click the button below and start speaking:")
-    
-    # Text input to sync recognized text
-    user_input = st.text_input("Recognized Speech:", key="voice_input")
 
-    # JS for voice recognition
-    components.html("""
-        <script>
-        const inputBox = window.document.querySelector('input[data-testid="stTextInput"]');
+    # Show recognized speech
+    recognized = st.empty()
 
-        const button = document.createElement('button');
-        button.innerText = "🎙️ Speak Now";
-        button.style.padding = "10px 20px";
-        button.style.fontSize = "16px";
-        button.style.backgroundColor = "#ff4b4b";
-        button.style.color = "white";
-        button.style.border = "none";
-        button.style.borderRadius = "8px";
-        button.style.marginTop = "10px";
-        button.style.cursor = "pointer";
+    # Run JS to capture voice
+    result = streamlit_js_eval(
+        js_expressions="""
+        const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-        button.onclick = () => {
-            const recognition = new(window.SpeechRecognition || window.webkitSpeechRecognition)();
+        async function getSpeech() {
+            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
             recognition.lang = 'en-US';
-            recognition.start();
 
-            recognition.onresult = function(event) {
-                const speech = event.results[0][0].transcript;
-                inputBox.value = speech;
-                const inputEvent = new Event('input', { bubbles: true });
-                inputBox.dispatchEvent(inputEvent);
-            };
-        };
+            return await new Promise((resolve, reject) => {
+                recognition.onresult = e => resolve(e.results[0][0].transcript);
+                recognition.onerror = err => reject(err.error);
+                recognition.start();
+            });
+        }
 
-        document.body.appendChild(button);
-        </script>
-    """, height=130)
+        getSpeech();
+        """,
+        key="voice_capture"
+    )
 
-# Run AI
+    if result and isinstance(result, str):
+        st.session_state.voice_input = result
+        user_input = result
+        recognized.markdown(f"#### Recognized Speech: `{result}`")
+
+# Process AI response
 if user_input:
     with st.spinner("MentorMate is thinking..."):
         response = get_ai_response(user_input)
         st.session_state.chat.append((user_input, response))
-        st.session_state.voice_input = ""  # Clear it after processing
+        st.session_state.voice_input = ""
 
-# Display chat
+# Chat history
 st.markdown("---")
 st.subheader("🧠 Chat History")
 
