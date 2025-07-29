@@ -11,8 +11,8 @@ MentorMate is a voice-enabled, AI-powered personal mentor built using **Streamli
 ## 🔧 Features
 
 - 🔄 Gemini + GPT fallback (whichever responds first)
-- 🎙️ Voice Input (mic-based, supported locally)
-- 🔊 Voice Output (browser-based text-to-speech — works on all devices)
+- 🎙️ Voice Input (via browser — no PyAudio needed!)
+- 🔊 Voice Output using Web Speech API
 - 🧠 Contextual AI behavior (stays on-topic)
 - 📜 Logging enabled
 - 🖥️ Web interface built using **Streamlit**
@@ -67,7 +67,8 @@ streamlit run app.py
 - Requires internet connection  
 - Works best in **Chrome / Edge**  
 - API keys needed for Gemini and OpenAI (Free tiers available)  
-- Voice output works anywhere using browser JavaScript
+- Browser must support JavaScript for voice features
+- No external mic library needed (thanks to browser-based input/output!)
 
 ---
 

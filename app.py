@@ -1,6 +1,5 @@
 import streamlit as st
 from AIengine import get_ai_response
-from VoiceInput import listen_to_user
 from VoiceOutput import speak_with_browser
 from dotenv import load_dotenv
 import os
@@ -26,16 +25,39 @@ mode = st.radio("Choose your input method:", ["📝 Text", "🎤 Voice"], horizo
 
 # Input field or voice input
 user_input = ""
+
 if mode == "📝 Text":
     user_input = st.text_input("Type your message:", key="text_input")
+
 elif mode == "🎤 Voice":
-    if st.button("🎙️ Speak Now"):
-        with st.spinner("Listening..."):
-            try:
-                user_input = listen_to_user()
-                st.success(f"You said: {user_input}")
-            except Exception as e:
-                st.error(f"Voice input failed: {e}")
+    st.text_input("Recognized Speech:", key="voice_input")
+
+    st.components.v1.html("""
+        <script>
+        const streamlitInput = window.parent.document.querySelector('input[data-testid="stTextInput"]');
+
+        var button = document.createElement("button");
+        button.innerText = "🎙️ Speak Now";
+        button.style.fontSize = "18px";
+        button.style.padding = "10px 20px";
+        button.style.marginTop = "10px";
+        button.onclick = () => {
+            var recognition = new(window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.lang = 'en-US';
+            recognition.start();
+
+            recognition.onresult = function(event) {
+                const speech = event.results[0][0].transcript;
+                streamlitInput.value = speech;
+                const inputEvent = new Event("input", { bubbles: true });
+                streamlitInput.dispatchEvent(inputEvent);
+            };
+        };
+        document.body.appendChild(button);
+        </script>
+    """, height=100)
+
+    user_input = st.session_state.get("voice_input", "")
 
 # Process input
 if user_input:
@@ -46,6 +68,7 @@ if user_input:
 # Display chat history
 st.markdown("---")
 st.subheader("🧠 Chat History")
+
 for i, (user, bot) in enumerate(st.session_state.chat[::-1]):
     st.markdown(f"**🧑 You:** {user}")
     st.markdown(f"**🤖 MentorMate:** {bot}")
