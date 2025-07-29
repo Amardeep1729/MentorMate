@@ -7,13 +7,12 @@ from streamlit_js_eval import streamlit_js_eval
 # Load environment variables
 load_dotenv()
 
-# Page configuration
+# Page config
 st.set_page_config(page_title="MentorMate", layout="wide")
 
 # Initialize session state
 if "chat" not in st.session_state:
     st.session_state.chat = []
-
 if "voice_input" not in st.session_state:
     st.session_state.voice_input = ""
 
@@ -23,10 +22,10 @@ st.markdown("""
     <p style='text-align: center;'>Your AI mentor for programming, education & productivity</p>
 """, unsafe_allow_html=True)
 
-# Input mode toggle
+# Input method selection
 mode = st.radio("Choose your input method:", ["📝 Text", "🎤 Voice"], horizontal=True)
 
-# Input handling
+# Main input logic
 user_input = ""
 
 if mode == "📝 Text":
@@ -35,43 +34,41 @@ if mode == "📝 Text":
 elif mode == "🎤 Voice":
     st.markdown("Click the button below and start speaking:")
 
-    # Show recognized speech
     recognized = st.empty()
 
-    # Run JS to capture voice
     result = streamlit_js_eval(
         js_expressions="""
-        const sleep = ms => new Promise(r => setTimeout(r, ms));
+            const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-        async function getSpeech() {
-            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-            recognition.lang = 'en-US';
+            async function getSpeech() {
+                const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+                recognition.lang = 'en-US';
 
-            return await new Promise((resolve, reject) => {
-                recognition.onresult = e => resolve(e.results[0][0].transcript);
-                recognition.onerror = err => reject(err.error);
-                recognition.start();
-            });
-        }
+                return await new Promise((resolve, reject) => {
+                    recognition.onresult = e => resolve(e.results[0][0].transcript);
+                    recognition.onerror = err => reject(err.error);
+                    recognition.start();
+                });
+            }
 
-        getSpeech();
+            getSpeech();
         """,
         key="voice_capture"
     )
 
-    if result and isinstance(result, str):
+    if isinstance(result, str) and result.strip():
         st.session_state.voice_input = result
         user_input = result
-        recognized.markdown(f"#### Recognized Speech: `{result}`")
+        recognized.markdown(f"#### 🗣️ Recognized Speech: `{result}`")
 
-# Process AI response
+# AI response processing
 if user_input:
     with st.spinner("MentorMate is thinking..."):
         response = get_ai_response(user_input)
         st.session_state.chat.append((user_input, response))
-        st.session_state.voice_input = ""
+        st.session_state.voice_input = ""  # Reset after response
 
-# Chat history
+# Chat history UI
 st.markdown("---")
 st.subheader("🧠 Chat History")
 
