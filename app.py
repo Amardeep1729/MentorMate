@@ -1,22 +1,21 @@
 import streamlit as st
 from AIengine import get_ai_response
-from VoiceOutput import speak_text, stop_speaking 
 from VoiceInput import listen_to_user
+from VoiceOutput import speak_with_browser
 from dotenv import load_dotenv
 import os
-import time
 
-# Load API keys
+# Load environment variables
 load_dotenv()
 
 # Streamlit page config
 st.set_page_config(page_title="MentorMate", layout="wide")
 
-
-# Chat history session
+# Session state for chat history
 if "chat" not in st.session_state:
     st.session_state.chat = []
 
+# Title and description
 st.markdown("""
     <h1 style='text-align: center; color: #ff4b4b;'>🤖 MentorMate</h1>
     <p style='text-align: center;'>Your AI mentor for programming, education & productivity</p>
@@ -48,10 +47,8 @@ if user_input:
 st.markdown("---")
 st.subheader("🧠 Chat History")
 for i, (user, bot) in enumerate(st.session_state.chat[::-1]):
-    st.markdown(f"**You:** {user}")
-    st.markdown(f"**MentorMate:** {bot}")
+    st.markdown(f"**🧑 You:** {user}")
+    st.markdown(f"**🤖 MentorMate:** {bot}")
     if st.button(f"🔊 Speak #{i+1}", key=f"speak_{i}"):
-        speak_text(bot)
-    if st.button(f"🛑 Stop #{i+1}", key=f"stop_{i}"):
-        stop_speaking()
+        speak_with_browser(bot)
     st.markdown("---")
