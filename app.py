@@ -48,7 +48,6 @@ if user_input.strip():
         st.session_state.chat.append((user_input, response))
     
     # Clear text input from field and memory
-    st.session_state["text_input"] = ""
     user_input = ""
 
 # Chat history
