@@ -71,7 +71,6 @@ streamlit run app.py
 - Works best in **Chrome / Edge**  
 - API keys needed for Gemini and OpenAI (Free tiers available)  
 - Browser must support JavaScript for voice features
-- No external mic library needed (thanks to browser-based input/output!)
 
 ---
 
@@ -91,8 +90,7 @@ You can deploy it on:
 - 💡 Streamlit  
 - 🧠 OpenAI API  
 - ⚡ Google Gemini AI  
-- 🗣️ Browser's SpeechRecognition and SpeechSynthesis APIs (JS-based)
-
+- 🔊 Web Speech API for voice output
 ---
 
 ## 🧠 Example Questions
