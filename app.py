@@ -51,3 +51,7 @@ if user_input:
     with st.spinner("MentorMate is thinking..."):
         response = get_ai_response(user_input)
         st.session_state.chat.append((user_input, response))
+
+#  Clear user_input immediately to avoid reusing on rerun
+    st.session_state["text_input"] = ""
+    user_input = ""
