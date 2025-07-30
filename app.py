@@ -103,4 +103,6 @@ for i, (user, bot) in enumerate(st.session_state.chat[::-1]):
         if st.button(f"🔊 Speak #{i+1}", key=f"speak_{i}"):
             speak_with_browser(bot)
     with col2:
-        if st.button(f"🛑 Stop #{i+1}", key=f"stop
+        if st.button(f"🛑 Stop #{i+1}", key=f"stop_{i}"):
+            stop_speaking()
+    st.markdown("---")
