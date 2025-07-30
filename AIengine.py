@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 from openai import OpenAI
 import google.generativeai as genai
+import threading
 
 # Load API keys
 load_dotenv()
@@ -14,11 +15,11 @@ client = OpenAI(api_key=openai_key)
 # Init Gemini
 genai.configure(api_key=gemini_key)
 
-def get_ai_response(prompt: str) -> str:
-    # Try Gemini first
+# Threaded Gemini call (to support timeout)
+def call_gemini(prompt, result_holder):
     try:
         gemini_model = genai.GenerativeModel("models/gemini-1.5-flash")
-        gemini_prompt = (
+        full_prompt = (
             '''You are MentorMate, a helpful, professional AI mentor. Your job is to provide clear, concise, and actionable advice in four main areas: 
             1. Education and learning techniques (which also include Astronomy)
             2. Programming and software development 
@@ -31,13 +32,26 @@ def get_ai_response(prompt: str) -> str:
 
             \n\nUser: ''' + prompt
         )
-        gemini_response = gemini_model.generate_content(gemini_prompt)
-        print("[INFO] Used Gemini model: gemini-1.5-flash")
-        return gemini_response.text.strip()
-    except Exception as g_error:
-        print(f"[Gemini Error]: {g_error}")
+        gemini_response = gemini_model.generate_content(full_prompt)
+        result_holder.append(gemini_response.text.strip())
+    except Exception as e:
+        print(f"[Gemini Error]: {e}")
 
-    # Then try OpenAI
+# Main response function
+def get_ai_response(prompt: str) -> str:
+    result_holder = []
+
+    # Start Gemini in separate thread with timeout
+    gemini_thread = threading.Thread(target=call_gemini, args=(prompt, result_holder))
+    gemini_thread.start()
+    gemini_thread.join(timeout=5)  # wait max 5 seconds
+
+    # Use Gemini response if available
+    if result_holder:
+        print("[INFO] Used Gemini model: gemini-1.5-flash")
+        return result_holder[0]
+
+    # Fallback to OpenAI
     try:
         response = client.chat.completions.create(
             model="gpt-4o-mini",
@@ -62,6 +76,7 @@ def get_ai_response(prompt: str) -> str:
         return "Sorry, all AI services failed to respond."
 
 
+# Run locally for test
 if __name__ == "__main__":
     reply = get_ai_response("Hello, who are you?")
     print("AI:", reply)
