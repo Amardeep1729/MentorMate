@@ -1,67 +1,43 @@
 import streamlit as st
 from AIengine import get_ai_response
-from VoiceOutput import speak_with_browser, stop_speaking
+from VoiceOutput import speak_with_browser  # Removed stop_speaking since it's not used
 from dotenv import load_dotenv
 import os
 
-# Load environment variables
 load_dotenv()
-
-# Set page config
 st.set_page_config(page_title="MentorMate", layout="wide")
 
-# Initialize session state
+# --- Session State Init ---
 if "chat" not in st.session_state:
     st.session_state.chat = []
 
-# Title
+# --- UI Header ---
 st.markdown("""
     <h1 style='text-align: center; color: #ff4b4b;'>🤖 MentorMate</h1>
     <p style='text-align: center;'>Your AI mentor for programming, education & productivity</p>
 """, unsafe_allow_html=True)
 
-# User input (text)
-user_input = st.text_input("Type your question here:", key="text_input")
+# --- Input ---
+user_question = st.text_input("Type your question:")
 
-# Buttons
-col1, col2 = st.columns([1, 1])
-clear_clicked = col1.button("🧹 Clear Chat")
-speak_clicked = col2.button("🔊 Speak Last Response")
-
-# Handle Clear Chat
-if clear_clicked:
-    stop_speaking()
-    st.session_state.chat = []
-    st.success("Chat history cleared.")
-    st.stop()
-
-# Handle Speak
-if speak_clicked and st.session_state.chat:
-    last_bot_msg = st.session_state.chat[-1][1]
-    speak_with_browser(last_bot_msg)
-    st.stop()
-
-# Process new input
-if user_input.strip():
+# --- Submit Button ---
+if st.button("Submit") and user_question.strip():
     with st.spinner("MentorMate is thinking..."):
-        response = get_ai_response(user_input)
-        st.session_state.chat.append((user_input, response))
-    
-    # Clear text input from field and memory
-    user_input = ""
+        response = get_ai_response(user_question)
+        st.session_state.chat.append((user_question, response))
 
-# Chat history
+# --- Clear Chat Button ---
+if st.button("🧹 Clear Chat"):
+    st.session_state.chat = []
+    st.experimental_rerun()
+
+# --- Chat History ---
 st.markdown("---")
 st.subheader("🧠 Chat History")
 
-# Show in reverse order (latest at top)
 for i, (user, bot) in enumerate(st.session_state.chat[::-1]):
     st.markdown(f"**🧑 You:** {user}")
     st.markdown(f"**🤖 MentorMate:** {bot}")
-    
-    col1 = st.columns(1)[0]
-    with col1:
-        if st.button(f"🔊 Speak #{i+1}", key=f"speak_{i}"):
-            speak_with_browser(bot)
-    
+    if st.button(f"🔊 Speak #{i}", key=f"speak_{i}"):
+        speak_with_browser(bot)
     st.markdown("---")
