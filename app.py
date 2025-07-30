@@ -38,6 +38,7 @@ st.subheader("🧠 Chat History")
 for i, (user, bot) in enumerate(st.session_state.chat[::-1]):
     st.markdown(f"**🧑 You:** {user}")
     st.markdown(f"**🤖 MentorMate:** {bot}")
-    if st.button(f"🔊 Speak #{i}", key=f"speak_{i}"):
+    if st.button(f"🔊 Speak #{len(st.session_state.chat) - i}", key=f"speak_{i}"):
+
         speak_with_browser(bot)
     st.markdown("---")
