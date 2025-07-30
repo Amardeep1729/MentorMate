@@ -1,23 +1,23 @@
 # 🤖 MentorMate
 
-MentorMate is a voice-enabled, AI-powered personal mentor built using **Streamlit**, **OpenAI**, and **Gemini (Google AI)**. It answers questions related to:
+MentorMate is an AI-powered personal mentor built using **Streamlit**, **OpenAI**, and **Gemini (Google AI)**.  
+It helps you with:
 
 🎓 Learning • 👨‍💻 Programming • 💼 Career Guidance • ⏱️ Productivity
 
-> ❌ It politely ignores unrelated questions like "how to cook" or "tell me a joke".
+> ❌ Politely ignores unrelated questions like jokes, food, entertainment, or inappropriate topics.
 
 ---
 
 ## 🔧 Features
 
 - 🔄 Gemini + GPT fallback (whichever responds first)
-- 🎙️ Voice Input (via browser — no PyAudio needed!)
-- 🔊 Voice Output using Web Speech API
-- 🧠 Contextual AI behavior (stays on-topic)
-- 📜 Logging enabled
-- 🖥️ Web interface built using **Streamlit**
-- 🎨 Sleek, fast UI with chat history
-- 🛑 **Clear / Stop Buttons:** Stop speaking or clear chat  
+- 🔊 Voice Output using Web Speech API (reads answers aloud)
+- 🧠 Context-aware responses that stay on-topic
+- 📜 Logging enabled for every request
+- 🖥️ Streamlit-based web interface
+- 🎨 Sleek, fast UI with persistent chat history
+- 🛑 One-click stop speaking or clear conversation
 
 ---
 
@@ -57,20 +57,20 @@ streamlit run app.py
 
 ## 🖥️ How to Use
 
-- Choose Voice or Text input  
-- Type or Speak your question  
-- Responses are shown on-screen and spoken via browser 
-- Use 🔊 buttons to replay responses
-- Use 🛑 to stop speaking or 🧹 to clear chat
-
+- Type your question in the input field
+- MentorMate responds instantly
+- Use 🔊 to hear responses
+- Use 🛑 to stop reading
+- Use 🧹 to clear chat history
 ---
 
 ## 📌 Notes
 
 - Requires internet connection  
 - Works best in **Chrome / Edge**  
+- Only text input is supported
 - API keys needed for Gemini and OpenAI (Free tiers available)  
-- Browser must support JavaScript for voice features
+- Voice output works via browser (no mic needed)
 
 ---
 

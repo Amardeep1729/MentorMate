@@ -2,7 +2,6 @@ import os
 from dotenv import load_dotenv
 from openai import OpenAI
 import google.generativeai as genai
-from logger import log_event
 
 # Load API keys
 load_dotenv()
@@ -16,49 +15,49 @@ client = OpenAI(api_key=openai_key)
 genai.configure(api_key=gemini_key)
 
 def get_ai_response(prompt: str) -> str:
-# Try Gemini first
+    # Try Gemini first
     try:
         gemini_model = genai.GenerativeModel("models/gemini-1.5-flash")
-        gemini_prompt = ( '''You are MentorMate, a helpful, professional AI mentor. Your job is to provide clear, concise, and actionable advice in four main areas: 
-                        1. Education and learning techniques (which also include Astronomy) 
-                        2. Programming and software development 
-                        3. Career guidance and skill-building 
-                        4. Productivity and time management
+        gemini_prompt = (
+            '''You are MentorMate, a helpful, professional AI mentor. Your job is to provide clear, concise, and actionable advice in four main areas: 
+            1. Education and learning techniques (which also include Astronomy)
+            2. Programming and software development 
+            3. Career guidance and skill-building 
+            4. Productivity and time management
 
-                        Always stay on-topic. If a question is unrelated (e.g., jokes, food, entertainment, personal relationships, or inappropriate topics), politely decline and redirect the user back to the supported categories.
+            Always stay on-topic. If a question is unrelated (e.g., jokes, food, entertainment, personal relationships, or inappropriate topics), politely decline and redirect the user back to the supported categories.
 
-                        Your tone should be motivating and respectful, suitable for students and professionals. Avoid humor, sarcasm, or casual slang. Always prioritize clarity and usefulness.
-                        \n\n'''
-                        f"User: {prompt}")
+            Your tone should be motivating and respectful, suitable for students and professionals. Avoid humor, sarcasm, or casual slang. Always prioritize clarity and usefulness.
+
+            \n\nUser: ''' + prompt
+        )
         gemini_response = gemini_model.generate_content(gemini_prompt)
-        log_event(f"[Gemini] Success - Prompt: {prompt}")
         print("[INFO] Used Gemini model: gemini-1.5-flash")
         return gemini_response.text.strip()
     except Exception as g_error:
-        log_event(f"[Gemini] Error - {g_error}")
         print(f"[Gemini Error]: {g_error}")
-    
-# Then to OpenAI
+
+    # Then try OpenAI
     try:
         response = client.chat.completions.create(
             model="gpt-4o-mini",
-            messages=[ {"role": "system", "content": '''You are MentorMate, a helpful, professional AI mentor. Your job is to provide clear, concise, and actionable advice in four main areas: 
-                        1. Education and learning techniques(which also include Astronomy) 
-                        2. Programming and software development 
-                        3. Career guidance and skill-building 
-                        4. Productivity and time management
+            messages=[
+                {"role": "system", "content": '''You are MentorMate, a helpful, professional AI mentor. Your job is to provide clear, concise, and actionable advice in four main areas: 
+                1. Education and learning techniques (which also include Astronomy)
+                2. Programming and software development 
+                3. Career guidance and skill-building 
+                4. Productivity and time management
 
-                        Always stay on-topic. If a question is unrelated (e.g., jokes, food, entertainment, personal relationships, or inappropriate topics), politely decline and redirect the user back to the supported categories.
+                Always stay on-topic. If a question is unrelated (e.g., jokes, food, entertainment, personal relationships, or inappropriate topics), politely decline and redirect the user back to the supported categories.
 
-                        Your tone should be motivating and respectful, suitable for students and professionals. Avoid humor, sarcasm, or casual slang. Always prioritize clarity and usefulness.
-                        '''},
-        {"role": "user", "content": prompt}]
+                Your tone should be motivating and respectful, suitable for students and professionals. Avoid humor, sarcasm, or casual slang. Always prioritize clarity and usefulness.
+                '''},
+                {"role": "user", "content": prompt}
+            ]
         )
-        log_event(f"[OpenAI] Success - Prompt: {prompt}")
         print(f"[INFO] Used OpenAI model: {response.model}")
         return response.choices[0].message.content.strip()
     except Exception as o_error:
-        log_event(f"[OpenAI] Error - {o_error}")
         print(f"[OpenAI Error]: {o_error}")
         return "Sorry, all AI services failed to respond."
 
@@ -66,4 +65,3 @@ def get_ai_response(prompt: str) -> str:
 if __name__ == "__main__":
     reply = get_ai_response("Hello, who are you?")
     print("AI:", reply)
-
