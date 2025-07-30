@@ -20,7 +20,7 @@ def get_ai_response(prompt: str) -> str:
     try:
         gemini_model = genai.GenerativeModel("models/gemini-1.5-flash")
         gemini_prompt = ( '''You are MentorMate, a helpful, professional AI mentor. Your job is to provide clear, concise, and actionable advice in four main areas: 
-                        1. Education and learning techniques 
+                        1. Education and learning techniques (which also include Astronomy) 
                         2. Programming and software development 
                         3. Career guidance and skill-building 
                         4. Productivity and time management
@@ -43,7 +43,7 @@ def get_ai_response(prompt: str) -> str:
         response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[ {"role": "system", "content": '''You are MentorMate, a helpful, professional AI mentor. Your job is to provide clear, concise, and actionable advice in four main areas: 
-                        1. Education and learning techniques 
+                        1. Education and learning techniques(which also include Astronomy) 
                         2. Programming and software development 
                         3. Career guidance and skill-building 
                         4. Productivity and time management
