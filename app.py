@@ -55,15 +55,13 @@ st.markdown("---")
 st.subheader("🧠 Chat History")
 
 # Show in reverse order (latest at top)
-for i, (user, bot) in enumerate(reversed(st.session_state.chat), start=1):
-    st.markdown(f"**🧑 You:** {user}**")
+for i, (user, bot) in enumerate(st.session_state.chat[::-1]):
+    st.markdown(f"**🧑 You:** {user}")
     st.markdown(f"**🤖 MentorMate:** {bot}")
-    col1, col2 = st.columns([1, 1])
+    
+    col1 = st.columns(1)[0]
     with col1:
-        if st.button(f"🔊 Speak #{i}", key=f"speak_{i}"):
+        if st.button(f"🔊 Speak #{i+1}", key=f"speak_{i}"):
             speak_with_browser(bot)
-            st.stop()
-    with col2:
-        if st.button(f"🛑 Stop #{i}", key=f"stop_{i}"):
-            stop_speaking()
+    
     st.markdown("---")

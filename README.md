@@ -14,11 +14,10 @@ It helps you with:
 - 🔄 Gemini + GPT fallback (whichever responds first)
 - 🔊 Voice Output using Web Speech API (reads answers aloud)
 - 🧠 Context-aware responses that stay on-topic
-- 📜 Logging enabled for every request
 - 🖥️ Streamlit-based web interface
-- 🎨 Sleek, fast UI with persistent chat history
-- 🛑 One-click stop speaking or clear conversation
-
+- 🧹 **Clear Chat** button for resetting the session
+- 📃 Chat history with readable formatting
+- 🔊 **Speak** button to hear answers aloud
 ---
 
 ## 🧰 Requirements
@@ -60,7 +59,6 @@ streamlit run app.py
 - Type your question in the input field
 - MentorMate responds instantly
 - Use 🔊 to hear responses
-- Use 🛑 to stop reading
 - Use 🧹 to clear chat history
 ---
 
