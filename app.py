@@ -54,4 +54,4 @@ if user_input:
         st.session_state.chat.append((user_input, response))
 
     # Force rerun to clear input field after processing
-    st.experimental_rerun()
+    st.rerun()
