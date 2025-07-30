@@ -7,10 +7,10 @@ import os
 # Load environment variables
 load_dotenv()
 
-# Page configuration
+# Streamlit page config
 st.set_page_config(page_title="MentorMate", layout="wide")
 
-# Session state
+# Session state init
 if "chat" not in st.session_state:
     st.session_state.chat = []
 
@@ -21,19 +21,18 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # --- Input field ---
-user_input = st.text_input("Type your question here:", key="text_input")
+user_input = st.text_input("Type your question here:", key="user_message")
 
 # --- Clear Chat Button ---
 if st.button("🧹 Clear Chat"):
     st.session_state.chat = []
     st.success("Chat history cleared.")
-    st.stop()  # prevent further code execution
+    st.stop()
 
 # --- Chat History ---
 st.markdown("---")
 st.subheader("🧠 Chat History")
 
-# Display chat history
 for i, (user, bot) in enumerate(st.session_state.chat[::-1]):
     st.markdown(f"**🧑 You:** {user}")
     st.markdown(f"**🤖 MentorMate:** {bot}")
@@ -41,18 +40,18 @@ for i, (user, bot) in enumerate(st.session_state.chat[::-1]):
     with col1:
         if st.button(f"🔊 Speak #{i+1}", key=f"speak_{i}"):
             speak_with_browser(bot)
-            st.stop()  # stop here to prevent re-triggering anything else
+            st.stop()
     with col2:
         if st.button(f"🛑 Stop #{i+1}", key=f"stop_{i}"):
             stop_speaking()
             st.stop()
     st.markdown("---")
 
-# --- Process user input ---
+# --- Process input ---
 if user_input:
     with st.spinner("MentorMate is thinking..."):
         response = get_ai_response(user_input)
         st.session_state.chat.append((user_input, response))
 
-    # Clear the text box
-    st.session_state.text_input = ""
+    # Force rerun to clear input field after processing
+    st.experimental_rerun()
